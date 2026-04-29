@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CA2 Topic Finder - CSE 2nd Year</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f4f7f6; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        .card { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); width: 90%; max-width: 450px; text-align: center; border-bottom: 5px solid #0056b3; }
+        h1 { font-size: 22px; color: #333; margin-bottom: 5px; }
+        .subtitle { font-size: 14px; color: #666; margin-bottom: 25px; font-weight: bold; }
+        input { width: 100%; padding: 12px; margin-bottom: 15px; border: 2px solid #ddd; border-radius: 8px; font-size: 16px; box-sizing: border-box; outline: none; }
+        button { width: 100%; background: #0056b3; color: white; border: none; padding: 12px; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; transition: 0.3s; }
+        button:hover { background: #004494; }
+        #result { display: none; margin-top: 25px; text-align: left; background: #fff; border: 1px solid #eee; padding: 20px; border-radius: 10px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.05); }
+        .info-row { margin-bottom: 12px; }
+        .label { font-size: 11px; color: #999; text-transform: uppercase; letter-spacing: 1px; display: block; }
+        .val { font-size: 16px; color: #2c3e50; font-weight: 600; }
+        .highlight { color: #d9534f; font-size: 18px; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h1>CA2 Topic Finder</h1>
+    <div class="subtitle">Computer Science & Engineering | 2nd Year</div>
+    
+    <input type="text" id="rollInput" placeholder="Enter University Roll Number">
+    <button onclick="getTopic()">Show My Topic</button>
+
+    <div id="result">
+        <div class="info-row">
+            <span class="label">Name</span>
+            <span class="val" id="nameText"></span>
+        </div>
+        <div class="info-row">
+            <span class="label">Department</span>
+            <span class="val">Computer Science and Engineering</span>
+        </div>
+        <div class="info-row">
+            <span class="label">Year</span>
+            <span class="val">2nd Year</span>
+        </div>
+        <hr style="border: 0; border-top: 1px solid #eee; margin: 15px 0;">
+        <div class="info-row">
+            <span class="label">Assigned Topic</span>
+            <span class="val highlight" id="topicText"></span>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Updated student list from your final Excel file (including Laterals)
+    const students = {
+        "11000124001": "Animesh Ghosh", "11000124002": "HIRANMOY BANGAL", "11000124003": "NAYAN CHATTERJEE",
+        "11000124004": "SAKSHI YADAV", "11000124005": "Rudraneel Sen", "11000124006": "Ruhan Khanna",
+        "11000124007": "Sanjana Ghosh", "11000124008": "Satadip Ghosh", "11000124009": "Shreyasi Samanta",
+        "11000124010": "HARSH CHAUHAN", "11000124011": "Monali Mondal", "11000124012": "Prem Sharma",
+        "11000124013": "Rajdeep Nag", "11000124014": "Rhitocheta Das", "11000124015": "Souraj Kundu",
+        "11000124016": "Suraj Ray", "11000124017": "Zayed Hossain", "11000124018": "Pranjal Kundu",
+        "11000124019": "Prasenjit Samanta", "11000124020": "ANUBHAV MAJI", "11000124021": "Arkapravo Mukherjee",
+        "11000124022": "Debojyoti Roy Chowdhury", "11000124023": "Anirban Ghosh", "11000124024": "AKASH KUNDU",
+        "11000124025": "Archisman Banerjee", "11000124026": "Arghya Mitra", "11000124027": "Arintak Das",
+        "11000124028": "Aayusi Mukherjee", "11000124029": "Abhigyan Mukherjee", "11000124030": "INZAMAMUL HOQUE",
+        "11000124031": "Meherabul Hasan Mondal", "11000124032": "Mehnoor Kausar", "11000124033": "REZAUL ISLAM",
+        "11000124034": "Sk Rajibul Islam", "11000124035": "Sahid Mondal", "11000124036": "Samrat kundu",
+        "11000124037": "Surajit Das", "11000124038": "Swadesh Mahato", "11000124039": "Pratham Kundu",
+        "11000124040": "Chintu Shaw", "11000124041": "Asmit Ghosh", "11000124042": "Arka Kar",
+        "11000124043": "Aniruddha Hazra", "11000124044": "Ajoy Show", "11000124045": "Biprodip Biswas",
+        "11000124046": "Anuska Das", "11000124047": "DEBASMITA MAJUMDAR", "11000124048": "Dhrubajyoti Das",
+        "11000124049": "Kuntal Naskar", "11000124050": "Suresh Ostad", "11000124051": "SNEHA BAG",
+        "11000124052": "SOURAV MONDAL", "11000124053": "Santanu Das", "11000124054": "Riya Maitra",
+        "11000124055": "Ranadip Das", "11000124056": "Pritam Mahato", "11000124057": "SHUBHAM MURMU",
+        "11000124058": "Sudarshan Hansda", "11000124059": "Suvojit Singh", "11000124070": "SRIJA SAHA",
+        "11000124071": "KAUSHIKI ROY", "11000124075": "Md Danish Ansari", "11000224011": "Annewsh Dikshit",
+        "11000224012": "Anurag Nair", "11000125068": "Aniket Ghosh", "11000125069": "Imran shaikh",
+        "11000125070": "Niloy Halder", "11000125071": "Rima shit", "11000125072": "Sagar Deep Roy",
+        "11000125073": "Sayan Dawn", "11000125074": "Sreedip Sikdar", "11000125075": "Swapnamoy Mandal",
+        "11000125076": "Upel Saren"
+    };
+
+    const topics = [
+        "Deterministic Finite Automata (DFA)",
+        "Designing and Implementation of Deterministic Finite Automata",
+        "Nondeterministic Finite Automata (NFA)",
+        "Conversion Process from Nondeterministic to Deterministic Finite Automata",
+        "Formal Definition and Application of Regular Expressions",
+        "Arden’s Theorem for Regular Expressions",
+        "Conversion of Finite Automata to Equivalent Regular Expressions",
+        "Finite State Machines with Output: Mealy and Moore Machines",
+        "Inter-conversion between Mealy and Moore Machine Models",
+        "The Chomsky Hierarchy of Formal Grammars and Languages",
+        "Pushdown Automata (PDA) and Stack-based Recognition",
+        "Equivalence and Conversion between Context-Free Grammars (CFG) and Pushdown Automata",
+        "The Universal Model of Computation: Turing Machine"
+    ];
+
+    function getTopic() {
+        const roll = document.getElementById('rollInput').value.trim();
+        const resBox = document.getElementById('result');
+
+        if (students[roll]) {
+            document.getElementById('nameText').innerText = students[roll];
+            
+            // Generate deterministic topic index based on the list position
+            const studentKeys = Object.keys(students);
+            const studentIndex = studentKeys.indexOf(roll);
+            const topicIndex = studentIndex % topics.length;
+            
+            document.getElementById('topicText').innerText = topics[topicIndex];
+            resBox.style.display = "block";
+        } else {
+            alert("Roll Number not found in the list!");
+            resBox.style.display = "none";
+        }
+    }
+</script>
+
+</body>
+</html>
